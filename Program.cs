@@ -10,6 +10,9 @@ namespace WDD_A05
     {
         static void Main(string[] args)
         {
+            WebServer server = new WebServer("C:/localWebSite", "127.0.0.1", "60000");
+
+            server.StartWebServer();
         }
     }
 }
