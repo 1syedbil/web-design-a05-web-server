@@ -54,7 +54,7 @@ namespace WDD_A05
             }
             finally
             {
-                webServer.Stop();
+                webServer?.Stop();
             }
         }
 
@@ -102,7 +102,7 @@ namespace WDD_A05
             }
 
             string host = requestByLines[1];
-            if (host != "HOST: localhost" && host != "Host: localhost")
+            if (host != "HOST: " + ip + ":" + port && host != "Host: " + ip + ":" + port)
             {
                 BadHttpRequest(client, stream);
 
@@ -129,7 +129,7 @@ namespace WDD_A05
 
             string fileContents = File.ReadAllText(path);
 
-            serverMessage = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "Content-Length: " + fileContents.Length.ToString() + "\r\n\r\n" + fileContents;
+            serverMessage = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "Content-Length: " + Encoding.ASCII.GetByteCount(fileContents).ToString() + "\r\n" + "Connection: close\r\n\r\n" + fileContents;
 
             serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
 
