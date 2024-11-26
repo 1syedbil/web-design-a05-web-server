@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using System.IO;
 using System.Xml.Schema;
+using System.Security.Cryptography;
 
 namespace WDD_A05
 {
@@ -64,7 +65,7 @@ namespace WDD_A05
             string clientRequest = string.Empty;
 
             byte[] serverMessageData = new byte[50000];
-            string serverMessage = string.Empty;    
+            string serverMessage = string.Empty;
 
             NetworkStream stream = client.GetStream();
 
@@ -127,15 +128,162 @@ namespace WDD_A05
                 return;
             }
 
+            int fileType = CheckFileType(path);
+
             string fileContents = File.ReadAllText(path);
 
-            serverMessage = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "Content-Length: " + Encoding.ASCII.GetByteCount(fileContents).ToString() + "\r\n" + "Connection: close\r\n\r\n" + fileContents;
+            byte[] image = File.ReadAllBytes(path);
 
-            serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
+            switch (fileType)
+            {
+                case 1:
+                    //serverMessage = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: " + Encoding.ASCII.GetByteCount(fileContents).ToString() + "\r\nConnection: close\r\n\r\n" + fileContents;
 
-            stream.Write(serverMessageData, 0, serverMessageData.Length);
+                    //serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
 
-            client.Close();
+                    //stream.Write(serverMessageData, 0, serverMessageData.Length);
+
+                    //client.Close();
+
+                    SendOkResponse(client, stream, fileContents, serverMessageData, image, fileType);
+
+                    break;
+
+                case 2:
+                    //serverMessage = "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: " + Encoding.ASCII.GetByteCount(fileContents).ToString() + "\r\nConnection: close\r\n\r\n" + fileContents;
+
+                    //serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
+
+                    //stream.Write(serverMessageData, 0, serverMessageData.Length);
+
+                    //client.Close();
+
+                    SendOkResponse(client, stream, fileContents, serverMessageData, image, fileType);
+
+                    break;
+
+                case 3:
+                    //serverMessage = "HTTP/1.1 200 OK\r\nContent-Type: image/gif\r\nAccept-Ranges: bytes\r\nContent-Length: " + image.Length.ToString() + "\r\nConnection: close\r\n\r\n";
+
+                    //serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
+
+                    //stream.Write(serverMessageData, 0, serverMessageData.Length);
+
+                    //stream.Write(image, 0, image.Length);
+
+                    //client.Close();
+
+                    SendOkResponse(client, stream, fileContents, serverMessageData, image, fileType);
+
+                    break;
+
+                case 4:
+                    //serverMessage = "HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\nAccept-Ranges: bytes\r\nContent-Length: " + image.Length.ToString() + "\r\nConnection: close\r\n\r\n";
+
+                    //serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
+
+                    //stream.Write(serverMessageData, 0, serverMessageData.Length);
+
+                    //stream.Write(image, 0, image.Length);
+
+                    //client.Close();
+
+                    SendOkResponse(client, stream, fileContents, serverMessageData, image, fileType);
+
+                    break;
+
+                default:
+                    break;
+            }
+
+            return;
+        }
+
+        private void SendOkResponse(TcpClient client, NetworkStream stream, string fileContents, byte[] header, byte[] image, int fileType)
+        {
+            string headerMessage = string.Empty;
+            string protocol = "HTTP/1.1 200 OK\r\n";
+            string contentType = string.Empty;
+            string acceptRanges = string.Empty;
+            string contentLength = string.Empty;
+            string connection = "Connection: close\r\n\r\n";
+
+            if (fileType == 1 || fileType == 2)
+            {
+                contentLength = "Content-Length: " + Encoding.ASCII.GetByteCount(fileContents).ToString() + "\r\n";
+
+                if (fileType == 1)
+                {
+                    contentType = "Content-Type: text/html; charset=UTF-8\r\n";
+                }
+                else if (fileType == 2)
+                {
+                    contentType = "Content-Type: text/plain; charset=UTF-8\r\n";
+                }
+
+                headerMessage = protocol + contentType + contentLength + connection + fileContents;
+
+                header = Encoding.ASCII.GetBytes(headerMessage);
+
+                stream.Write(header, 0, header.Length);
+
+                client.Close();
+
+                return;
+            }
+
+            else if (fileType == 3 || fileType == 4)
+            {
+                contentLength = "Content-Length: " + image.Length.ToString() + "\r\n";
+
+                acceptRanges = "Accept-Ranges: bytes\r\n";
+
+                if (fileType == 3)
+                {
+                    contentType = "Content-Type: image/gif\r\n";
+                }
+                else if (fileType == 4)
+                {
+                    contentType = "Content-Type: image/jpeg\r\n";
+                }
+
+                headerMessage = protocol + contentType + acceptRanges + contentLength + connection;
+
+                header = Encoding.ASCII.GetBytes(headerMessage);
+
+                stream.Write(header, 0, header.Length);
+
+                stream.Write(image, 0, image.Length);
+
+                client.Close();
+
+                return;
+            }
+
+        }
+
+        private int CheckFileType(string filePath)
+        {
+            string extension = Path.GetExtension(filePath);
+
+            if (extension == ".html" || extension == ".htm" || extension == ".xhtml" || extension == ".asp" || extension == ".php")
+            {
+                return 1;
+            }
+            else if (extension == ".txt")
+            {
+                return 2;
+            }
+            else if (extension == ".gif")
+            {
+                return 3;
+            }
+            else if (extension == ".jpg" || extension == ".jpeg" || extension == ".jpe")
+            {
+                return 4;
+            }
+
+            return 0;
         }
 
         private void FileNotFound(TcpClient client, NetworkStream stream)
@@ -143,7 +291,7 @@ namespace WDD_A05
             byte[] serverMessageData = new byte[500];
             string serverMessage = string.Empty;
 
-            serverMessage = "404 Error: File not found";
+            serverMessage = "HTTP/1.1 404 Not Found\r\n";
             serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
 
             stream.Write(serverMessageData, 0, serverMessageData.Length);
@@ -156,7 +304,7 @@ namespace WDD_A05
             byte[] serverMessageData = new byte[500];
             string serverMessage = string.Empty;
 
-            serverMessage = "405 Error: Method not allowed";
+            serverMessage = "HTTP/1.1 405 Method Not Allowed\r\n";
             serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
 
             stream.Write(serverMessageData, 0, serverMessageData.Length);
@@ -169,7 +317,7 @@ namespace WDD_A05
             byte[] serverMessageData = new byte[500];
             string serverMessage = string.Empty;
 
-            serverMessage = "400 Error: Bad Request";
+            serverMessage = "HTTP/1.1 400 Bad Request\r\n";
             serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
 
             stream.Write(serverMessageData, 0, serverMessageData.Length);
