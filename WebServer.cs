@@ -137,57 +137,21 @@ namespace WDD_A05
             switch (fileType)
             {
                 case 1:
-                    //serverMessage = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: " + Encoding.ASCII.GetByteCount(fileContents).ToString() + "\r\nConnection: close\r\n\r\n" + fileContents;
-
-                    //serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
-
-                    //stream.Write(serverMessageData, 0, serverMessageData.Length);
-
-                    //client.Close();
-
                     SendOkResponse(client, stream, fileContents, serverMessageData, image, fileType);
 
                     break;
 
                 case 2:
-                    //serverMessage = "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: " + Encoding.ASCII.GetByteCount(fileContents).ToString() + "\r\nConnection: close\r\n\r\n" + fileContents;
-
-                    //serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
-
-                    //stream.Write(serverMessageData, 0, serverMessageData.Length);
-
-                    //client.Close();
-
                     SendOkResponse(client, stream, fileContents, serverMessageData, image, fileType);
 
                     break;
 
                 case 3:
-                    //serverMessage = "HTTP/1.1 200 OK\r\nContent-Type: image/gif\r\nAccept-Ranges: bytes\r\nContent-Length: " + image.Length.ToString() + "\r\nConnection: close\r\n\r\n";
-
-                    //serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
-
-                    //stream.Write(serverMessageData, 0, serverMessageData.Length);
-
-                    //stream.Write(image, 0, image.Length);
-
-                    //client.Close();
-
                     SendOkResponse(client, stream, fileContents, serverMessageData, image, fileType);
 
                     break;
 
                 case 4:
-                    //serverMessage = "HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\nAccept-Ranges: bytes\r\nContent-Length: " + image.Length.ToString() + "\r\nConnection: close\r\n\r\n";
-
-                    //serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
-
-                    //stream.Write(serverMessageData, 0, serverMessageData.Length);
-
-                    //stream.Write(image, 0, image.Length);
-
-                    //client.Close();
-
                     SendOkResponse(client, stream, fileContents, serverMessageData, image, fileType);
 
                     break;
@@ -196,7 +160,7 @@ namespace WDD_A05
                     break;
             }
 
-            return;
+            client.Close();
         }
 
         private void SendOkResponse(TcpClient client, NetworkStream stream, string fileContents, byte[] header, byte[] image, int fileType)
@@ -227,8 +191,6 @@ namespace WDD_A05
 
                 stream.Write(header, 0, header.Length);
 
-                client.Close();
-
                 return;
             }
 
@@ -254,8 +216,6 @@ namespace WDD_A05
                 stream.Write(header, 0, header.Length);
 
                 stream.Write(image, 0, image.Length);
-
-                client.Close();
 
                 return;
             }
