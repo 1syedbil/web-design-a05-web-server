@@ -165,11 +165,15 @@ namespace WDD_A05
 
         private void SendOkResponse(TcpClient client, NetworkStream stream, string fileContents, byte[] header, byte[] image, int fileType)
         {
+            DateTime dateTime = DateTime.UtcNow;
+
+            string dateTimeStamp = "Date: " + dateTime.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'", System.Globalization.CultureInfo.InvariantCulture) + "\r\n";
             string headerMessage = string.Empty;
             string protocol = "HTTP/1.1 200 OK\r\n";
             string contentType = string.Empty;
             string acceptRanges = string.Empty;
             string contentLength = string.Empty;
+            string server = "Server: Bilal-Syed-WDD_A05/1.0\r\n";
             string connection = "Connection: close\r\n\r\n";
 
             if (fileType == 1 || fileType == 2)
@@ -185,7 +189,7 @@ namespace WDD_A05
                     contentType = "Content-Type: text/plain; charset=UTF-8\r\n";
                 }
 
-                headerMessage = protocol + contentType + contentLength + connection + fileContents;
+                headerMessage = protocol + contentType + server + dateTimeStamp + contentLength + connection + fileContents;
 
                 header = Encoding.ASCII.GetBytes(headerMessage);
 
@@ -209,7 +213,7 @@ namespace WDD_A05
                     contentType = "Content-Type: image/jpeg\r\n";
                 }
 
-                headerMessage = protocol + contentType + acceptRanges + contentLength + connection;
+                headerMessage = protocol + contentType + acceptRanges + server + dateTimeStamp + contentLength + connection;
 
                 header = Encoding.ASCII.GetBytes(headerMessage);
 
