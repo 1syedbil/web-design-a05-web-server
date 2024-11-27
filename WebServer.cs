@@ -110,7 +110,7 @@ namespace WDD_A05
             }
 
             string host = requestByLines[1];
-            if (host != "HOST: " + ip + ":" + port && host != "Host: " + ip + ":" + port)
+            if (host.Contains(ip.ToString()))
             {
                 BadHttpRequest(client, stream);
 
