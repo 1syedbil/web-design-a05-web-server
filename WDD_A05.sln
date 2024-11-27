@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WDD_A05", "WDD_A05.csproj", "{39C4486F-A0C9-41B2-83F0-E24498B1A850}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "myOwnWebServer", "myOwnWebServer.csproj", "{39C4486F-A0C9-41B2-83F0-E24498B1A850}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

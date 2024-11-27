@@ -42,6 +42,11 @@ namespace WDD_A05
 
                 webServer.Start();
 
+                DateTime dateTime = DateTime.Now;
+                string log = dateTime.ToString("ddd, dd MMM yyyy HH:mm:ss 'EST'", System.Globalization.CultureInfo.InvariantCulture) + " [SERVER STARTED] - " + webRoot + ", " + ip.ToString() + ", " + port.ToString() + "\n\n";
+
+                File.WriteAllText("myOwnWebServer.txt", log);
+
                 while (true)
                 {
                     TcpClient webClient = webServer.AcceptTcpClient();
@@ -61,6 +66,8 @@ namespace WDD_A05
 
         private void HandleHttpRequest(TcpClient client)
         {
+            DateTime dateTime = DateTime.Now;
+
             byte[] clientRequestData = new byte[500];
             string clientRequest = string.Empty;
 
@@ -113,6 +120,10 @@ namespace WDD_A05
             string method = firstLineBySpaces[0];
             string path = webRoot + firstLineBySpaces[1];
             string httpProtocol = firstLineBySpaces[2];
+
+            string log = dateTime.ToString("ddd, dd MMM yyyy HH:mm:ss 'EST'", System.Globalization.CultureInfo.InvariantCulture) + " [REQUEST RECEIVED] - " + method + ", " + firstLineBySpaces[1] + "\n\n";
+
+            File.AppendAllText("myOwnWebServer.txt", log);
 
             if (method != "GET")
             {
@@ -167,59 +178,71 @@ namespace WDD_A05
         {
             DateTime dateTime = DateTime.UtcNow;
 
-            string dateTimeStamp = "Date: " + dateTime.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'", System.Globalization.CultureInfo.InvariantCulture) + "\r\n";
+            string dateTimeStamp = "Date: " + dateTime.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'", System.Globalization.CultureInfo.InvariantCulture);
             string headerMessage = string.Empty;
-            string protocol = "HTTP/1.1 200 OK\r\n";
+            string protocol = "HTTP/1.1 200 OK";
             string contentType = string.Empty;
             string acceptRanges = string.Empty;
             string contentLength = string.Empty;
-            string server = "Server: Bilal-Syed-WDD_A05/1.0\r\n";
-            string connection = "Connection: close\r\n\r\n";
+            string server = "Server: myOwnWebServer/1.0";
+            string connection = "Connection: close";
 
             if (fileType == 1 || fileType == 2)
             {
-                contentLength = "Content-Length: " + Encoding.ASCII.GetByteCount(fileContents).ToString() + "\r\n";
+                contentLength = "Content-Length: " + Encoding.ASCII.GetByteCount(fileContents).ToString();
 
                 if (fileType == 1)
                 {
-                    contentType = "Content-Type: text/html; charset=UTF-8\r\n";
+                    contentType = "Content-Type: text/html; charset=UTF-8";
                 }
                 else if (fileType == 2)
                 {
-                    contentType = "Content-Type: text/plain; charset=UTF-8\r\n";
+                    contentType = "Content-Type: text/plain; charset=UTF-8";
                 }
 
-                headerMessage = protocol + contentType + server + dateTimeStamp + contentLength + connection + fileContents;
+                headerMessage = protocol + "\r\n" + contentType + "\r\n" + server + "\r\n" + dateTimeStamp + "\r\n" + contentLength + "\r\n" + connection + "\r\n\r\n" + fileContents;
 
                 header = Encoding.ASCII.GetBytes(headerMessage);
 
                 stream.Write(header, 0, header.Length);
+
+                DateTime logTime = DateTime.Now;
+
+                string log = logTime.ToString("ddd, dd MMM yyyy HH:mm:ss 'EST'", System.Globalization.CultureInfo.InvariantCulture) + " [RESPONSE SENT] - " + contentType + ", " + contentLength + ", " + server + ", " + dateTimeStamp + "\n\n";
+
+                File.AppendAllText("myOwnWebServer.txt", log);
 
                 return;
             }
 
             else if (fileType == 3 || fileType == 4)
             {
-                contentLength = "Content-Length: " + image.Length.ToString() + "\r\n";
+                contentLength = "Content-Length: " + image.Length.ToString();
 
-                acceptRanges = "Accept-Ranges: bytes\r\n";
+                acceptRanges = "Accept-Ranges: bytes";
 
                 if (fileType == 3)
                 {
-                    contentType = "Content-Type: image/gif\r\n";
+                    contentType = "Content-Type: image/gif";
                 }
                 else if (fileType == 4)
                 {
-                    contentType = "Content-Type: image/jpeg\r\n";
+                    contentType = "Content-Type: image/jpeg";
                 }
 
-                headerMessage = protocol + contentType + acceptRanges + server + dateTimeStamp + contentLength + connection;
+                headerMessage = protocol + "\r\n" + contentType + "\r\n" + acceptRanges + "\r\n" + server + "\r\n" + dateTimeStamp + "\r\n" + contentLength + "\r\n" + connection + "\r\n\r\n";
 
                 header = Encoding.ASCII.GetBytes(headerMessage);
 
                 stream.Write(header, 0, header.Length);
 
                 stream.Write(image, 0, image.Length);
+
+                DateTime logTime = DateTime.Now;
+
+                string log = logTime.ToString("ddd, dd MMM yyyy HH:mm:ss 'EST'", System.Globalization.CultureInfo.InvariantCulture) + " [RESPONSE SENT] - " + contentType + ", " + contentLength + ", " + server + ", " + dateTimeStamp + "\n\n";
+
+                File.AppendAllText("myOwnWebServer.txt", log);
 
                 return;
             }
@@ -260,6 +283,12 @@ namespace WDD_A05
 
             stream.Write(serverMessageData, 0, serverMessageData.Length);
 
+            DateTime dateTime = DateTime.Now;
+
+            string log = dateTime.ToString("ddd, dd MMM yyyy HH:mm:ss 'EST'", System.Globalization.CultureInfo.InvariantCulture) + " [RESPONSE ERROR] - 404\n\n";
+
+            File.AppendAllText("myOwnWebServer.txt", log);
+
             client.Close();
         }
 
@@ -273,6 +302,12 @@ namespace WDD_A05
 
             stream.Write(serverMessageData, 0, serverMessageData.Length);
 
+            DateTime dateTime = DateTime.Now;
+
+            string log = dateTime.ToString("ddd, dd MMM yyyy HH:mm:ss 'EST'", System.Globalization.CultureInfo.InvariantCulture) + " [RESPONSE ERROR] - 405\n\n";
+
+            File.AppendAllText("myOwnWebServer.txt", log);
+
             client.Close();
         }
 
@@ -285,6 +320,12 @@ namespace WDD_A05
             serverMessageData = Encoding.ASCII.GetBytes(serverMessage);
 
             stream.Write(serverMessageData, 0, serverMessageData.Length);
+
+            DateTime dateTime = DateTime.Now;
+
+            string log = dateTime.ToString("ddd, dd MMM yyyy HH:mm:ss 'EST'", System.Globalization.CultureInfo.InvariantCulture) + " [RESPONSE ERROR] - 400\n\n";
+
+            File.AppendAllText("myOwnWebServer.txt", log);
 
             client.Close();
         }
